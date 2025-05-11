@@ -15447,7 +15447,7 @@ const ImGuiPayload* ImGui::AcceptDragDropPayload(const char* type, ImGuiDragDrop
 }
 
 // FIXME-STYLE FIXME-DRAGDROP: Settle on a proper default visuals for drop target.
-void ImGui::RenderDragDropTargetRect(const ImRect& bb, const ImRect& item_clip_rect)
+void ImGui::RenderDragDropTargetRect(const ImRect& bb, const ImRect& item_clip_rect, bool render_as_line)
 {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
@@ -15457,7 +15457,17 @@ void ImGui::RenderDragDropTargetRect(const ImRect& bb, const ImRect& item_clip_r
     bool push_clip_rect = !window->ClipRect.Contains(bb_display);
     if (push_clip_rect)
         window->DrawList->PushClipRectFullScreen();
-    window->DrawList->AddRect(bb_display.Min, bb_display.Max, GetColorU32(ImGuiCol_DragDropTarget), 0.0f, 0, 2.0f); // FIXME-DPI
+    if (render_as_line)
+    {
+        float y = (bb_display.Min.y + bb_display.Max.y) * 0.5f; // ���߻����м�
+        ImVec2 p1 = ImVec2(bb_display.Min.x, y);
+        ImVec2 p2 = ImVec2(bb_display.Max.x, y);
+        window->DrawList->AddLine(p1, p2, ImGui::GetColorU32(ImGuiCol_DragDropTarget), 2.0f); // FIXME-DPI
+    }
+    else
+    {
+        window->DrawList->AddRect(bb_display.Min, bb_display.Max, GetColorU32(ImGuiCol_DragDropTarget), 0.0f, 0, 2.0f); // FIXME-DPI
+    }
     if (push_clip_rect)
         window->DrawList->PopClipRect();
 }
