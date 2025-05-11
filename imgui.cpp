@@ -15459,7 +15459,7 @@ void ImGui::RenderDragDropTargetRect(const ImRect& bb, const ImRect& item_clip_r
         window->DrawList->PushClipRectFullScreen();
     if (render_as_line)
     {
-        float y = (bb_display.Min.y + bb_display.Max.y) * 0.5f; // ���߻����м�
+        float y = (bb_display.Min.y + bb_display.Max.y) * 0.5f; // 将线画在中间
         ImVec2 p1 = ImVec2(bb_display.Min.x, y);
         ImVec2 p2 = ImVec2(bb_display.Max.x, y);
         window->DrawList->AddLine(p1, p2, ImGui::GetColorU32(ImGuiCol_DragDropTarget), 2.0f); // FIXME-DPI
