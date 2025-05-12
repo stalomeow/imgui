@@ -7886,8 +7886,12 @@ ImGuiMultiSelectIO* ImGui::EndMultiSelect()
         }
 
         if (ms->Flags & ImGuiMultiSelectFlags_ClearOnClickVoid)
+        {
             if (IsMouseReleased(0) && IsMouseDragPastThreshold(0) == false && g.IO.KeyMods == ImGuiMod_None)
                 MultiSelectAddSetAll(ms, false);
+            if (IsMouseReleased(1) && IsMouseDragPastThreshold(1) == false && g.IO.KeyMods == ImGuiMod_None)
+                MultiSelectAddSetAll(ms, false);
+        }
     }
 
     // Courtesy nav wrapping helper flag
