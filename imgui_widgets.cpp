@@ -763,7 +763,7 @@ bool ImGui::ButtonBehavior(const ImRect& bb, ImGuiID id, bool* out_hovered, bool
     return pressed;
 }
 
-bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags flags)
+bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags flags, ImDrawFlags frameDrawFlags)
 {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
@@ -790,7 +790,7 @@ bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags
     // Render
     const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
     RenderNavCursor(bb, id);
-    RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+    RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding, frameDrawFlags);
 
     if (g.LogEnabled)
         LogSetNextTextDecoration("[", "]");
@@ -6859,9 +6859,27 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
             nav_render_cursor_flags |= ImGuiNavRenderCursorFlags_AlwaysDraw; // Always show the nav rectangle
         if (display_frame)
         {
+            ImGuiCol bg_col;
+
+            if (held && hovered)
+            {
+                bg_col = ImGuiCol_HeaderActive;
+            }
+            else if (hovered)
+            {
+                bg_col = ImGuiCol_HeaderHovered;
+            }
+            else if (selected)
+            {
+                bg_col = ImGuiCol_HeaderActiveDimmed;
+            }
+            else
+            {
+                bg_col = ImGuiCol_Header;
+            }
+
             // Framed type
-            const ImU32 bg_col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
-            RenderFrame(frame_bb.Min, frame_bb.Max, bg_col, true, style.FrameRounding);
+            RenderFrame(frame_bb.Min, frame_bb.Max, GetColorU32(bg_col), true, style.FrameRounding);
             if ((flags & ImGuiTreeNodeFlags_HideNavCursor) == 0)
                 RenderNavCursor(frame_bb, id, nav_render_cursor_flags);
             if (span_all_columns && !span_all_columns_label)
@@ -6882,8 +6900,26 @@ bool ImGui::TreeNodeBehavior(ImGuiID id, ImGuiTreeNodeFlags flags, const char* l
             // Unframed typed for tree nodes
             if (hovered || selected)
             {
-                const ImU32 bg_col = GetColorU32((held && hovered) ? ImGuiCol_HeaderActive : hovered ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
-                RenderFrame(frame_bb.Min, frame_bb.Max, bg_col, false);
+                ImGuiCol bg_col;
+
+                if (held && hovered)
+                {
+                    bg_col = ImGuiCol_HeaderActive;
+                }
+                else if (hovered)
+                {
+                    bg_col = ImGuiCol_HeaderHovered;
+                }
+                else if (selected)
+                {
+                    bg_col = ImGuiCol_HeaderActiveDimmed;
+                }
+                else
+                {
+                    bg_col = ImGuiCol_Header;
+                }
+
+                RenderFrame(frame_bb.Min, frame_bb.Max, GetColorU32(bg_col), false);
             }
             if ((flags & ImGuiTreeNodeFlags_HideNavCursor) == 0)
                 RenderNavCursor(frame_bb, id, nav_render_cursor_flags);
@@ -7263,7 +7299,7 @@ bool ImGui::Selectable(const char* label, bool selected, ImGuiSelectableFlags fl
         if (highlighted || selected)
         {
             // Between 1.91.0 and 1.91.4 we made selected Selectable use an arbitrary lerp between _Header and _HeaderHovered. Removed that now. (#8106)
-            ImU32 col = GetColorU32((held && highlighted) ? ImGuiCol_HeaderActive : highlighted ? ImGuiCol_HeaderHovered : ImGuiCol_Header);
+            ImU32 col = GetColorU32((held && highlighted) ? ImGuiCol_HeaderActive : highlighted ? ImGuiCol_HeaderHovered : selected ? ImGuiCol_HeaderActiveDimmed : ImGuiCol_Header);
             RenderFrame(bb.Min, bb.Max, col, false, 0.0f);
         }
         if (g.NavId == id)
